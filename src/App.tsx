@@ -7,8 +7,8 @@ import AppProvider from './hooks';
 
 const App: React.FC = () => (
   <>
-    {/* <SignUp /> */}
     <AppProvider>
+    {/* <SignUp /> */}
       <SignIn />
     </AppProvider>
 

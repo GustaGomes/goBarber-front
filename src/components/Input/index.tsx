@@ -45,7 +45,7 @@ const Input: React.FC<InputProps> = ({ name, icon: Icon , ...rest }) => {
             onBlur={ handleInputBlur }    // quando perdeu o focus
             defaultValue={ defaultValue } 
             ref={ inputRef }
-             {...rest} 
+             {...rest}  
         />
         { error && 
             <Error title={error}> 
