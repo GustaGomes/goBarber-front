@@ -1,23 +1,32 @@
 // eslint-disable-next-line
 import React, { useCallback, useRef } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import { FiLock, FiArrowLeft, FiMail, FiUser } from 'react-icons/fi';
 import { Form }from '@unform/web';
 import { FormHandles }from '@unform/core';
 import * as Yup from 'yup';
+import { useToast } from '../../hooks/toast';
+import api from '../../services/api';
 import getValidationErrors from '../../utils/getValidationErrors';
-
-import logoImg from '../../assets/logo.svg';
-
 import Button from '../../components/Button';
 import Input from '../../components/Input';
+import logoImg from '../../assets/logo.svg';
+
 
 import { Container, AnimationContainer, Content, Background } from './styles';
-import { Link } from 'react-router-dom';
+
+interface SignUpFormData {
+    name: string,
+    email: string,
+    password: string,
+}
 
 const SignUp: React.FC = () => {
     const formRef = useRef<FormHandles>(null); // useRef me da o contato direto as informações do form
+    const { addToast } = useToast();
+    const history = useHistory();
 
-    const handleSubmit = useCallback(async (data: object) => {
+    const handleSubmit = useCallback(async (data: SignUpFormData) => {
         try{
             formRef.current?.setErrors({}); 
             
@@ -30,11 +39,32 @@ const SignUp: React.FC = () => {
             await schema.validate(data, {
                 abortEarly: false,
             });
+
+            await api.post('/users', data);
+
+            history.push('/');
+
+            addToast({
+                type:'success',
+                title:'Cadastro realizado com sucesso!',
+                description:'Você ja pode fazer seu logon',
+            })
+
         } catch(err){
-            const errors = getValidationErrors(err);
-            formRef.current?.setErrors(errors);   
-        }
-    }, [ ]);
+                if(err instanceof Yup.ValidationError){
+                    const errors = getValidationErrors(err);
+
+                    formRef.current?.setErrors(errors); 
+                    return;
+                }
+                // disparar toast
+                addToast({
+                    type: 'error',
+                    title: 'Erro no Cadastro',
+                    description: 'Ocorreu um erro o fazer cadastro, cheque as credenciais'
+                });
+            }
+    }, [ addToast, history ]);
 
     return ( 
         <Container>
